@@ -250,7 +250,7 @@ func (s *SecretsManager) setKeystores(crt *cmapi.Certificate, secret *corev1.Sec
 	// Handle the experimental PKCS12 support
 	if crt.Spec.Keystores != nil && crt.Spec.Keystores.PKCS12 != nil && crt.Spec.Keystores.PKCS12.Create {
 		// default password in case no secret is provided
-		pw := "changeit"
+		pw := []byte("changeit")
 		if ref := crt.Spec.Keystores.PKCS12.PasswordSecretRef; ref != nil {
 			pwSecret, err := s.secretLister.Secrets(crt.Namespace).Get(ref.Name)
 			if err != nil {
@@ -259,7 +259,7 @@ func (s *SecretsManager) setKeystores(crt *cmapi.Certificate, secret *corev1.Sec
 			if pwSecret.Data == nil || len(pwSecret.Data[ref.Key]) == 0 {
 				return fmt.Errorf("PKCS12 keystore password Secret contains no data for key %q", ref.Key)
 			}
-			pw := pwSecret.Data[ref.Key]
+			pw = pwSecret.Data[ref.Key]
 		}
 		profile := crt.Spec.Keystores.PKCS12.Profile
 		keystoreData, err := encodePKCS12Keystore(profile, string(pw), data.PrivateKey, data.Certificate, data.CA)
@@ -282,7 +282,7 @@ func (s *SecretsManager) setKeystores(crt *cmapi.Certificate, secret *corev1.Sec
 	// Handle the experimental JKS support
 	if crt.Spec.Keystores != nil && crt.Spec.Keystores.JKS != nil && crt.Spec.Keystores.JKS.Create {
 		// default password in case no secret is provided
-		pw := "changeit"
+		pw := []byte("changeit")
 		if ref := crt.Spec.Keystores.JKS.PasswordSecretRef; ref == nil {
 			pwSecret, err := s.secretLister.Secrets(crt.Namespace).Get(ref.Name)
 			if err != nil {
@@ -291,7 +291,7 @@ func (s *SecretsManager) setKeystores(crt *cmapi.Certificate, secret *corev1.Sec
 			if pwSecret.Data == nil || len(pwSecret.Data[ref.Key]) == 0 {
 				return fmt.Errorf("JKS keystore password Secret contains no data for key %q", ref.Key)
 			}
-			pw := pwSecret.Data[ref.Key]
+			pw = pwSecret.Data[ref.Key]
 		}
 		alias := "certificate"
 		if crt.Spec.Keystores.JKS.Alias != nil {
