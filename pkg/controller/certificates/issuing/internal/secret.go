@@ -283,7 +283,7 @@ func (s *SecretsManager) setKeystores(crt *cmapi.Certificate, secret *corev1.Sec
 	if crt.Spec.Keystores != nil && crt.Spec.Keystores.JKS != nil && crt.Spec.Keystores.JKS.Create {
 		// default password in case no secret is provided
 		pw := []byte("changeit")
-		if ref := crt.Spec.Keystores.JKS.PasswordSecretRef; ref == nil {
+		if ref := crt.Spec.Keystores.JKS.PasswordSecretRef; ref != nil {
 			pwSecret, err := s.secretLister.Secrets(crt.Namespace).Get(ref.Name)
 			if err != nil {
 				return fmt.Errorf("fetching JKS keystore password from Secret: %v", err)
